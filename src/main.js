@@ -316,25 +316,55 @@ async function mostrarMinhaLocalizacao() {
                 state.userLocation = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
                 elements.locationText.innerText = state.userLocation;
             }
-        }, () => {
-            elements.locationText.innerText = "GPS negado.";
-        });
+        }, (err) => {
+            let msg = "Erro ao buscar GPS.";
+            if (err.code === 1) msg = "GPS negado. Ative nas configurações do navegador.";
+            else if (err.code === 2) msg = "Localização indisponível.";
+            else if (err.code === 3) msg = "Tempo esgotado.";
+            elements.locationText.innerText = msg;
+        }, { timeout: 10000 });
+    } else {
+        elements.locationText.innerText = "Geolocalização não suportada.";
     }
 }
 
 function falarInstrucao(texto) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(texto);
-        msg.lang = state.currentLang === 'ES' ? 'es-ES' : state.currentLang === 'EN' ? 'en-US' : 'pt-BR';
-        msg.rate = 0.85;
 
-        msg.onpause = () => updateVoiceButtons(true);
-        msg.onresume = () => updateVoiceButtons(false);
-        msg.onend = () => updateVoiceButtons(false);
+        // Pequeno delay para garantir o cancelamento em alguns navegadores
+        setTimeout(() => {
+            const msg = new SpeechSynthesisUtterance(texto);
+            const langMap = { 'ES': 'es-ES', 'EN': 'en-US', 'PT': 'pt-BR', 'LIBRAS': 'pt-BR', 'MAC': 'pt-BR' };
+            msg.lang = langMap[state.currentLang] || 'pt-BR';
+            msg.rate = 0.9;
 
-        window.speechSynthesis.speak(msg);
-        updateVoiceButtons(false);
+            msg.onpause = () => updateVoiceButtons(true);
+            msg.onresume = () => updateVoiceButtons(false);
+            msg.onend = () => {
+                updateVoiceButtons(false);
+                state.isSpeaking = false;
+            };
+            msg.onerror = (e) => {
+                console.error("Speech Error:", e);
+                state.isSpeaking = false;
+                updateVoiceButtons(false);
+            };
+
+            state.isSpeaking = true;
+            window.speechSynthesis.speak(msg);
+            updateVoiceButtons(false);
+
+            // Bug fix: manter a fala ativa em alguns Chrome/Android
+            const keepAlive = setInterval(() => {
+                if (state.isSpeaking && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                    window.speechSynthesis.pause();
+                    window.speechSynthesis.resume();
+                } else {
+                    clearInterval(keepAlive);
+                }
+            }, 10000);
+        }, 100);
     }
 }
 
@@ -350,8 +380,17 @@ function updateVoiceButtons(isPaused) {
 
 function toggleVoice(pause) {
     if (window.speechSynthesis.speaking) {
-        if (pause) window.speechSynthesis.pause();
-        else window.speechSynthesis.resume();
+        if (pause) {
+            window.speechSynthesis.pause();
+        } else {
+            // Em alguns navegadores, resume() precisa de um pequeno hack
+            window.speechSynthesis.resume();
+
+            // Verificação extra para forçar o retorno se travar
+            if (window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+            }
+        }
     }
 }
 
