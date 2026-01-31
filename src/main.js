@@ -71,6 +71,10 @@ function setupEventListeners() {
     // Handle clicks for dynamically rendered buttons (Event Delegation)
     elements.categoryBtns.addEventListener('click', handleActionClick);
     elements.subArea.addEventListener('click', handleActionClick);
+    elements.renderArea.addEventListener('click', handleActionClick);
+
+    // Static buttons
+    elements.uiBtnLoc.addEventListener('click', mostrarMinhaLocalizacao);
 }
 
 async function fetchData() {
