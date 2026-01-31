@@ -10,7 +10,8 @@ const state = {
     metronomeInterval: null,
     userLocation: "Localização não autorizada",
     userDevice: "",
-    isSpeaking: false
+    isSpeaking: false,
+    audioCtx: null
 };
 
 // UI Elements caching
@@ -22,7 +23,6 @@ const elements = {
     loading: document.getElementById('loading'),
     renderArea: document.getElementById('render-area'),
     subArea: document.getElementById('subcategory-area'),
-    beepAudio: document.getElementById('rcp-beep'),
     visualMetronome: document.getElementById('visual-metronome'),
     langLabel: document.getElementById('lang-label'),
     langOptions: document.getElementById('lang-options'),
@@ -419,8 +419,29 @@ function toggleMetronome() {
 }
 
 function playPulse() {
-    elements.beepAudio.currentTime = 0;
-    elements.beepAudio.play().catch(() => { });
+    // Som de "toc" sintetizado (Web Audio API)
+    if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    if (state.audioCtx.state === 'suspended') {
+        state.audioCtx.resume();
+    }
+
+    const osc = state.audioCtx.createOscillator();
+    const gain = state.audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, state.audioCtx.currentTime);
+
+    gain.gain.setValueAtTime(0.5, state.audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, state.audioCtx.currentTime + 0.05);
+
+    osc.connect(gain);
+    gain.connect(state.audioCtx.destination);
+
+    osc.start();
+    osc.stop(state.audioCtx.currentTime + 0.05);
+
+    // Efeito visual
     elements.visualMetronome.classList.remove('pulse-active');
     void elements.visualMetronome.offsetWidth;
     elements.visualMetronome.classList.add('pulse-active');
