@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Conexão Socorro - SAMU 192</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-main">
+                <div class="header-text">
+                    <h1 id="app-title">Conexão Socorro</h1>
+                    <p id="app-subtitle">Primeiros Socorros Inteligentes</p>
+                </div>
+                <a href="tel:192" class="btn-emergency-call" id="ui-btn-samu">
+                    <i class="icon-phone">📞</i>
+                    Acionar SAMU 192
+                </a>
+            </div>
+        </header>
+
+        <!-- Auxílio Sonoro RCP -->
+        <audio id="rcp-beep" src="https://www.soundjay.com/buttons/beep-07.mp3" preload="auto"></audio>
+
+        <main class="content">
+            <!-- Navegação Superior -->
+            <div id="nav-top" class="nav-top hidden">
+                <button class="btn-back-top" id="ui-btn-back-top">
+                    ← Voltar
+                </button>
+            </div>
+
+            <!-- Seleção de Idioma Integrada -->
+            <div id="lang-menu" class="lang-inline-selector">
+                <button id="current-lang-btn" class="btn-lang-toggle">
+                    <span id="lang-label">🇧🇷 Selecionar Idioma</span>
+                    <i class="chevron">▼</i>
+                </button>
+                <div id="lang-options" class="lang-options hidden">
+                    <div class="lang-option" data-lang="PT">🇧🇷 Português</div>
+                    <div class="lang-option" data-lang="ES">🇻🇪 Español</div>
+                    <div class="lang-option" data-lang="EN">🇺🇸 English</div>
+                    <div class="lang-option" data-lang="LIBRAS">🤟 Libras</div>
+                    <div class="lang-option" data-lang="MAC">🏹 Macuxi</div>
+                </div>
+            </div>
+
+            <!-- Indicador Visual Rítmico -->
+            <div id="visual-metronome" class="visual-metronome hidden"></div>
+
+            <!-- Passo 2: Menu Principal (Categorias) -->
+            <div id="step-2" class="screen">
+                <h3 class="section-title" id="ui-title-cat">Selecione a Categoria</h3>
+                <div id="category-btns"></div>
+
+                <div class="location-box">
+                    <button class="btn btn-location" id="ui-btn-location">
+                        📍 Saiba sua Localização
+                    </button>
+                    <div id="location-display" class="location-card hidden">
+                        <p class="location-label" id="ui-loc-label">Sua localização aproximada:</p>
+                        <p id="location-text" class="location-text">Buscando...</p>
+                        <p class="location-hint" id="ui-loc-hint">Repasse estas informações ao atendente do SAMU.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passo 3: Subcategorias -->
+            <div id="step-3" class="screen hidden">
+                <div id="subcategory-area"></div>
+            </div>
+
+            <!-- Passo 4: Área de Intervenção -->
+            <div id="step-4" class="screen hidden">
+                <div class="audio-controls">
+                    <button class="btn-voice" id="btn-pause-voice">⏸ Pausar Instrução</button>
+                    <button class="btn-voice hidden" id="btn-play-voice">▶ Retomar Instrução</button>
+                </div>
+                <div id="render-area"></div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Carregando dados...</p>
+            </div>
+        </main>
+
+        <footer class="footer hidden" id="app-footer">
+            <button class="btn btn-back">⬅ Voltar</button>
+        </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
