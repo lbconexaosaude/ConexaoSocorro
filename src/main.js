@@ -1,6 +1,5 @@
 import { WEB_APP_URL, METRONOME_BPM, NOMINATIM_URL } from './constants.js';
 import { uiLabels } from './translations.js';
-import './style.css';
 
 // State Management
 const state = {
